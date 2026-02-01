@@ -1,0 +1,36 @@
+[project]
+name = "websocket-benchamark"
+description = "Benchmark for various websocket clients"
+authors = [{name = "Taras Kozlov", email = "tarasko.projects@gmail.com"}]
+requires-python = '>=3.9'
+readme = "README.rst"
+license-files = ["LICENSE"]
+dynamic = ["version"]
+keywords = ["websocket", "networking", "benchmark"]
+dependencies = ["aiohttp", "websockets", "picows", "numpy", "matplotlib", "uvloop; sys_platform != 'win32'"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Framework :: AsyncIO",
+    "Intended Audience :: Developers",
+    "Operating System :: POSIX",
+    "Operating System :: MacOS :: MacOS X",
+    "Operating System :: Microsoft :: Windows",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Cython",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Topic :: System :: Networking"
+]
+
+[build-system]
+requires = ["setuptools >= 78.0", "wheel", "Cython >= 3.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["websocket_benchmark"]
+

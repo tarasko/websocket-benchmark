@@ -1,0 +1,11 @@
+perf.data
+perf.data.old
+CMakeLists.txt.user
+CMakeUserPresets.json
+build
+.idea\
+.idea
+*.c
+*.html
+*.so
+__pycache__
