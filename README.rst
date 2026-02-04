@@ -8,7 +8,7 @@ Benchmark compares RPS of different clients in the same environment against the 
 Results
 
 .. csv-table:: uvloop-0.22.1, msg_size=256
-   :file: results/uvloop.csv
+   :file: https://raw.githubusercontent.com/tarasko/websocket-benchmark/refs/heads/master/results/uvloop.csv
    :header-rows: 1
 
 
@@ -83,6 +83,7 @@ Build python benchmark
 .. code-block::
 
   $ python -m websocket_benchmark.benchmark --msg-size 256 --duration 10
+
 
 
 
