@@ -1,0 +1,7 @@
+Cython
+websockets
+aiohttp
+picows
+numpy
+matplotlib
+uvloop; sys_platform != 'win32'
