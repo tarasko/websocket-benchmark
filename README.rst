@@ -5,6 +5,13 @@ This benchmark focuses on measuring various python websocket clients latency. Cl
 Benchmark compares RPS of different clients in the same environment against the same server.
 
 
+Results
+
+.. csv-table:: uvloop-0.22.1, msg_size=256
+   :file: results/uvloop.csv
+   :header-rows: 1
+
+
 Build C++ Boost.Beast websocket echo server and client
 ======================================================
 
@@ -76,6 +83,7 @@ Build python benchmark
 .. code-block::
 
   $ python -m websocket_benchmark.benchmark --msg-size 256 --duration 10
+
 
 
 
