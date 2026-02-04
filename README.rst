@@ -1,3 +1,10 @@
+Benchmark method
+================
+
+This benchmark focuses on measuring websocket client latency. Client connects to websocket server through a loop back interface. Client sends a message of a specified side and waits for response. When response arrives client sends next message. This loop runs for some time then average request-per-second is computed.
+Benchmark compares RPS of different clients in the same environment against the same server.
+
+
 Build C++ Boost.Beast websocket echo server and client
 ======================================================
 
@@ -9,6 +16,9 @@ Build C++ Boost.Beast websocket echo server and client
   $ conda activate wsbench
 
 2. Install conan. Conan is a C++ package manager (simular to pip).
+
+.. code-block::
+
   $ pip install conan
 
 3. Initialize conan default profile
@@ -66,5 +76,6 @@ Build python benchmark
 .. code-block::
 
   $ python -m websocket_benchmark.benchmark --msg-size 256 --duration 10
+
 
 
