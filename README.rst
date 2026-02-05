@@ -9,7 +9,7 @@ This request–response loop runs for a fixed period of time, after which the av
 
 All clients are tested in the same environment and compared against the same high-performance C++ server.
 
-Results (the higher the better)
+Results (higher is better)
 =======
 
 .. image:: results/benchmark-256.png
@@ -98,6 +98,7 @@ Contribute
 ==========
 
 Feel free to add other libraries to this benchmark. PRs are welcome!
+
 
 
 
