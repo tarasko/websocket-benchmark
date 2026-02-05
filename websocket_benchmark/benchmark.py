@@ -4,6 +4,8 @@ import importlib
 import os
 import platform
 import ssl
+from pathlib import Path
+
 import uvloop
 
 from logging import getLogger
@@ -22,12 +24,13 @@ def create_client_ssl_context():
     return ssl_context
 
 
-def print_result_and_plot(results: pd.DataFrame, save_plot):
+def print_result_and_plot(msg_size, results: pd.DataFrame, save_plot):
     try:
         import matplotlib.pyplot as plt
 
+        clients = results.index
+        client_names = results.index + "-" + results.version
         data = results.drop(columns=["version"])
-        clients = data.index
         tests = [n.replace('-', '\n') for n in data.columns]
 
         x = np.arange(len(tests))
@@ -35,23 +38,29 @@ def print_result_and_plot(results: pd.DataFrame, save_plot):
 
         plt.figure(figsize = (8, 4))
 
-        for i, client in enumerate(clients):
+        for i, (client, name) in enumerate(zip(clients, client_names)):
             plt.bar(
                 x + i * width,
                 data.loc[client],
                 width,
-                label=client,
+                label=name,
             )
 
         plt.xticks(x + width * (len(clients) - 1) / 2, tests)
         plt.ylabel("request/second")
-        plt.title(f'Echo round-trip performance \n(asyncio-{platform.python_version()}, uvloop-{uvloop.__version__})')
+        plt.title(f'Echo round-trip performance \n(asyncio-{platform.python_version()}, uvloop-{uvloop.__version__}, msg_size={msg_size})')
         plt.legend()
         plt.tight_layout()
 
         if save_plot:
-            plt.savefig(f"results/benchmark.png", dpi=150, bbox_inches="tight")
+            png_path = Path(os.path.dirname(
+                __file__)) / '..' / 'results' / f'benchmark-{msg_size}.png'
+            data_path = Path(os.path.dirname(
+                __file__)) / '..' / 'results' / f'benchmark-{msg_size}.txt'
+            plt.savefig(png_path, dpi=150, bbox_inches="tight")
             plt.close()
+
+            results.to_csv(data_path)
         else:
             plt.show()
     except ImportError:
@@ -64,18 +73,18 @@ def main():
     parser.add_argument("--host", default="127.0.0.1", help="Server host")
     parser.add_argument("--plain-port", default="9001", help="Server port with plain websockets")
     parser.add_argument("--ssl-port", default="9002", help="Server port with secure websockets")
-    parser.add_argument("--msg-sizes", default="256,100000", help="Message sizes, comma separated")
+    parser.add_argument("--msg-size", default="256", help="Message size")
     parser.add_argument("--duration", default="5", help="duration of test in seconds")
     parser.add_argument("--loops", default="asyncio,uvloop", help="Comma separated list of event loops")
     parser.add_argument("--no-plot", action="store_true", help="Disable plots")
     parser.add_argument("--save-plot", action="store_true", help="Save plot to results folder instead of showing them")
-    parser.add_argument("--clients", default="websockets,aiohttp,picows,picows_cython,boost", help="Comma separated list of clients")
+    parser.add_argument("--clients", default="websockets,aiohttp,picows,picows_cyt,boost", help="Comma separated list of clients")
     parser.add_argument("--skip-plain", action="store_true", help="Disable plain client test")
     parser.add_argument("--skip-ssl", action="store_true", help="Disable ssl client test")
 
     args = parser.parse_args()
 
-    msg_sizes = [int(sz) for sz in args.msg_sizes.split(",")]
+    msg_size = int(args.msg_size)
     loops = args.loops.split(",")
     pd_index = (args.clients.split(","))
     modules = (f"websocket_benchmark.client_{c}" for c in pd_index)
@@ -101,9 +110,9 @@ def main():
         if module_idx == 0:
             pd_columns.append("version")
         for ctx, url in ((None, plain_url), (ssl_context, ssl_url)):
-            for msg_size in msg_sizes:
-                msg = os.urandom(msg_size)
+            msg = os.urandom(msg_size)
 
+            if m.name not in ('c++ beast',):
                 for loop in loops:
                     if loop == "uvloop":
                         asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
@@ -115,11 +124,20 @@ def main():
                     rps = asyncio.run(m.run(args, url, msg, duration, 100, ctx))
 
                     if module_idx == 0:
-                        pd_columns.append(f"{plain_ssl_name}-{msg_size}-{loop}")
+                        pd_columns.append(f"{plain_ssl_name}-{loop}")
+                    module_results.append(rps)
+            else:
+                plain_ssl_name = 'plain' if ctx is None else 'ssl'
+                print(f"Run {m.name} {plain_ssl_name} {msg_size} bytes test")
+                rps = asyncio.run(m.run(args, url, msg, duration, 100, ctx))
+
+                for loop in loops:
+                    if module_idx == 0:
+                        pd_columns.append(f"{plain_ssl_name}-{loop}")
                     module_results.append(rps)
 
     df = pd.DataFrame(results, index=pd_index, columns=pd_columns)
-    print_result_and_plot(df, args.save_plot)
+    print_result_and_plot(msg_size, df, args.save_plot)
 
 
 if __name__ == '__main__':
