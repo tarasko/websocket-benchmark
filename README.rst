@@ -8,7 +8,7 @@ This benchmark focuses on measuring various python websocket clients latency.
 * When response arrives client sends next message. 
 * This loop runs for some time and then average request-per-second is computed.
 
-Benchmark compares RPS of different clients in the same environment against the same high-performant C++ server.
+Benchmark compares RPS of different clients in the same environment against the same high-performant C++ server (the higer the better).
 
 Results
 =======
@@ -99,6 +99,7 @@ Contribute
 ==========
 
 Feel free to add other libraries to this benchmark. PRs are welcome!
+
 
 
 
