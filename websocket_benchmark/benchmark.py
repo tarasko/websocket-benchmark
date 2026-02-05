@@ -109,7 +109,7 @@ def main():
         results.append(module_results)
         if module_idx == 0:
             pd_columns.append("version")
-        for ctx, url in ((None, tcp_url), (ssl_context, ssl_url)):
+        for ctx, url in tcp_ssl_targets:
             msg = os.urandom(msg_size)
 
             if m.name not in ('c++ beast',):
@@ -137,7 +137,8 @@ def main():
                     module_results.append(rps)
 
     df = pd.DataFrame(results, index=pd_index, columns=pd_columns)
-    print_result_and_plot(msg_size, df, args.save_plot)
+    if not args.no_plot:
+        print_result_and_plot(msg_size, df, args.save_plot)
 
 
 if __name__ == '__main__':
