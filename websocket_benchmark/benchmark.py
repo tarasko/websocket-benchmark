@@ -56,7 +56,7 @@ def print_result_and_plot(msg_size, results: pd.DataFrame, save_plot):
             png_path = Path(os.path.dirname(
                 __file__)) / '..' / 'results' / f'benchmark-{msg_size}.png'
             data_path = Path(os.path.dirname(
-                __file__)) / '..' / 'results' / f'benchmark-{msg_size}.txt'
+                __file__)) / '..' / 'results' / f'benchmark-{msg_size}.csv'
             plt.savefig(png_path, dpi=150, bbox_inches="tight")
             plt.close()
 
