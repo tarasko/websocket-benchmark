@@ -6,6 +6,16 @@ Benchmark compares RPS of different clients in the same environment against the 
 
 
 Results
+=======
+
+.. image:: results/benchmark-256.png
+    :align: center
+
+.. image:: results/benchmark-8192.png
+    :align: center
+
+.. image:: results/benchmark-100000.png
+    :align: center
 
 
 .. csv-table:: uvloop
@@ -85,6 +95,11 @@ Build python benchmark
 
   $ python -m websocket_benchmark.benchmark --msg-size 256 --duration 10
 
+
+Contribute
+==========
+
+Feel free to add other libraries to this benchmark. PRs are welcome!
 
 
 
