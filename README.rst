@@ -1,14 +1,13 @@
 Method
 ================
 
-This benchmark focuses on measuring various python websocket clients latency. 
+This benchmark measures the latency of various Python WebSocket clients.
 
-* Client connects to websocket server through a loop back interface. 
-* Client sends a message of a specified size and waits for response. 
-* When response arrives client sends next message. 
-* This loop runs for some time and then average request-per-second is computed.
+Each client connects to a WebSocket server over the loopback interface. The client sends a message of a specified size and waits for the response. Once the response is received, the client immediately sends the next message.
 
-Benchmark compares RPS of different clients in the same environment against the same high-performant C++ server.
+This request–response loop runs for a fixed period of time, after which the average requests per second (RPS) is calculated.
+
+All clients are tested in the same environment and compared against the same high-performance C++ server.
 
 Results (the higher the better)
 =======
@@ -99,6 +98,7 @@ Contribute
 ==========
 
 Feel free to add other libraries to this benchmark. PRs are welcome!
+
 
 
 
