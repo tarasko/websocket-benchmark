@@ -10,7 +10,7 @@ This benchmark focuses on measuring various python websocket clients latency.
 
 Benchmark compares RPS of different clients in the same environment against the same high-performant C++ server.
 
-Results ((the higher the better)
+Results (the higher the better)
 =======
 
 .. image:: results/benchmark-256.png
@@ -99,6 +99,7 @@ Contribute
 ==========
 
 Feel free to add other libraries to this benchmark. PRs are welcome!
+
 
 
 
