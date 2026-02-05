@@ -1,5 +1,0 @@
-Client,Plain,SSL
-websockets,10000,5000
-aiohttp,11000,6000
-picows,12000,7000
-

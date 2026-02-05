@@ -7,7 +7,7 @@ version = "1.90.0"
 name = "c++ beast"
 
 
-async def run(args, url: str, msg: bytes, duration: int, ssl_context):
+async def run(args, url: str, msg: bytes, duration: float, warmup_cycles_cnt: int, ssl_context):
     client_path = Path(os.path.dirname(__file__)) / '..' / 'build' / 'src' / 'ws_echo_client'
     working_dir = Path(os.path.dirname(__file__)) / '..'
 
@@ -16,7 +16,8 @@ async def run(args, url: str, msg: bytes, duration: int, ssl_context):
                          b"0" if ssl_context is None else b"1",
                          args.host.encode(),
                          args.plain_port if ssl_context is None else args.ssl_port,
-                         args.msg_size, args.duration],
+                         str(len(msg)),
+                         args.duration],
                         shell=False, check=True, capture_output=True,
                         cwd=working_dir)
     _, rps = pr.stdout.split(b":", 2)

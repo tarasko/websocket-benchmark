@@ -35,50 +35,50 @@ cdef double get_now_timestamp() except -1.0:
 cdef class EchoClientListener(WSListener):
     cdef:
         WSTransport _transport
-        double _begin_time
-        int _duration
+        double _start_time
+        float _duration
+        int _warmup_cycles_cnt
         int _cnt
         bytes _data
-        bytearray _full_reply
         readonly int rps
 
-    def __init__(self, bytes data, int duration):
+    def __init__(self, bytes data, float duration, int warmup_cycles_cnt):
         super().__init__()
         self._transport = None
-        self._begin_time = 0
+        self._start_time = 0
         self._duration = duration
+        self._warmup_cycles_cnt = warmup_cycles_cnt
         self._cnt = 0
         self._data = data
-        self._full_reply = bytearray()
         self.rps = 0
 
     cpdef on_ws_connected(self, WSTransport transport):
         self._transport = transport
-        self._begin_time = get_now_timestamp()
+        if self._warmup_cycles_cnt == 0:
+            self._start_time = get_now_timestamp()
         self._transport.send(WSMsgType.BINARY, self._data)
 
     cpdef on_ws_frame(self, WSTransport transport, WSFrame frame):
-        if frame.fin:
-            if self._full_reply:
-                self._full_reply += frame.get_payload_as_memoryview()
-                self._full_reply.clear()
+        cdef double now = get_now_timestamp()
+
+        if self._warmup_cycles_cnt > 0:
+            self._warmup_cycles_cnt -= 1
+            if self._warmup_cycles_cnt == 0:
+                self._start_time = now
         else:
-            self._full_reply += frame.get_payload_as_memoryview()
-            return
+            self._cnt += 1
 
-        self._cnt += 1
-        cdef double ts = get_now_timestamp()
+            if now - self._start_time >= self._duration:
+                self.rps = int(self._cnt / self._duration)
+                self._transport.disconnect()
+                return
 
-        if ts - self._begin_time >= self._duration:
-            self.rps = int(self._cnt / self._duration)
-            self._transport.disconnect()
-        else:
-            self._transport.send(WSMsgType.BINARY, self._data)
+        self._transport.send(WSMsgType.BINARY, self._data)
 
 
-async def run(args, url: str, data: bytes, duration: int, ssl_context):
+async def run(args, url: str, data: bytes, duration: float, warmup_cycles_cnt: int, ssl_context):
     cdef EchoClientListener client
-    (_, client) = await ws_connect(lambda: EchoClientListener(data, duration),
+    (_, client) = await ws_connect(lambda: EchoClientListener(data, duration, warmup_cycles_cnt),
                                    url,
                                    ssl_context=ssl_context)
     await client._transport.wait_disconnected()

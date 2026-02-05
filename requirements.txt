@@ -3,5 +3,6 @@ websockets
 aiohttp
 picows
 numpy
+pandas
 matplotlib
 uvloop; sys_platform != 'win32'
