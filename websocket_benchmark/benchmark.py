@@ -71,15 +71,15 @@ def main():
     parser = argparse.ArgumentParser(description="Benchmark for the various websocket clients",
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("--host", default="127.0.0.1", help="Server host")
-    parser.add_argument("--plain-port", default="9001", help="Server port with plain websockets")
-    parser.add_argument("--ssl-port", default="9002", help="Server port with secure websockets")
+    parser.add_argument("--tcp-port", default="9001", help="Server port with plain tcp websockets")
+    parser.add_argument("--ssl-port", default="9002", help="Server port with ssl websockets")
     parser.add_argument("--msg-size", default="256", help="Message size")
     parser.add_argument("--duration", default="5", help="duration of test in seconds")
     parser.add_argument("--loops", default="asyncio,uvloop", help="Comma separated list of event loops")
     parser.add_argument("--no-plot", action="store_true", help="Disable plots")
     parser.add_argument("--save-plot", action="store_true", help="Save plot to results folder instead of showing them")
     parser.add_argument("--clients", default="websockets,aiohttp,picows,picows_cyt,boost", help="Comma separated list of clients")
-    parser.add_argument("--skip-plain", action="store_true", help="Disable plain client test")
+    parser.add_argument("--skip-tcp", action="store_true", help="Disable plain tcp client test")
     parser.add_argument("--skip-ssl", action="store_true", help="Disable ssl client test")
 
     args = parser.parse_args()
@@ -92,14 +92,14 @@ def main():
     duration = int(args.duration)
 
     ssl_context = create_client_ssl_context()
-    plain_url = f"ws://{args.host}:{args.plain_port}/"
+    tcp_url = f"ws://{args.host}:{args.tcp_port}/"
     ssl_url = f"wss://{args.host}:{args.ssl_port}/"
 
-    plain_secure_targets = []
+    tcp_ssl_targets = []
     if not args.skip_ssl:
-        plain_secure_targets.append((ssl_context, ssl_url))
-    if not args.skip_plain:
-        plain_secure_targets.append((None, plain_url))
+        tcp_ssl_targets.append((ssl_context, ssl_url))
+    if not args.skip_tcp:
+        tcp_ssl_targets.append((None, tcp_url))
 
     pd_columns = []
     results = []
@@ -109,7 +109,7 @@ def main():
         results.append(module_results)
         if module_idx == 0:
             pd_columns.append("version")
-        for ctx, url in ((None, plain_url), (ssl_context, ssl_url)):
+        for ctx, url in ((None, tcp_url), (ssl_context, ssl_url)):
             msg = os.urandom(msg_size)
 
             if m.name not in ('c++ beast',):
@@ -119,21 +119,21 @@ def main():
                     else:
                         asyncio.set_event_loop_policy(None)
 
-                    plain_ssl_name = 'plain' if ctx is None else 'ssl'
-                    print(f"Run {m.name} {plain_ssl_name} {msg_size} bytes {loop} test")
+                    tcp_ssl_name = 'tcp' if ctx is None else 'ssl'
+                    print(f"Run {m.name} {tcp_ssl_name} {msg_size} bytes {loop} test")
                     rps = asyncio.run(m.run(args, url, msg, duration, 100, ctx))
 
                     if module_idx == 0:
-                        pd_columns.append(f"{plain_ssl_name}-{loop}")
+                        pd_columns.append(f"{tcp_ssl_name}-{loop}")
                     module_results.append(rps)
             else:
-                plain_ssl_name = 'plain' if ctx is None else 'ssl'
-                print(f"Run {m.name} {plain_ssl_name} {msg_size} bytes test")
+                tcp_ssl_name = 'tcp' if ctx is None else 'ssl'
+                print(f"Run {m.name} {tcp_ssl_name} {msg_size} bytes test")
                 rps = asyncio.run(m.run(args, url, msg, duration, 100, ctx))
 
                 for loop in loops:
                     if module_idx == 0:
-                        pd_columns.append(f"{plain_ssl_name}-{loop}")
+                        pd_columns.append(f"{tcp_ssl_name}-{loop}")
                     module_results.append(rps)
 
     df = pd.DataFrame(results, index=pd_index, columns=pd_columns)
