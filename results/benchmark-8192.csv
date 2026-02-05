@@ -1,6 +1,6 @@
-,version,tcp-asyncio,tcp-uvloop,ssl-asyncio,ssl-uvloop
-websockets,16.0,9429,11280,6356,7219
-aiohttp,3.13.3,15633,19766,7398,9807
-picows,1.11.0,21220,23119,9041,11149
-picows_cyt,1.11.0,22269,24607,9057,11404
-boost,1.90.0,24322,24322,12992,12992
+,version,ssl-asyncio,ssl-uvloop,tcp-asyncio,tcp-uvloop
+websockets,16.0,6275,6341,9942,10204
+aiohttp,3.13.3,7339,8124,15453,18067
+picows,1.11.1,8505,10102,22576,24955
+picows_cyt,1.11.1,8818,10115,23573,25848
+boost,1.90.0,12605,12605,24233,24233

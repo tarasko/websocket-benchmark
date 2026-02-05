@@ -1,0 +1,6 @@
+,version,ssl-asyncio,ssl-uvloop,tcp-asyncio,tcp-uvloop
+websockets,16.0,6150,7218,9962,11355
+aiohttp,3.13.3,7355,9807,15869,19619
+picows,1.11.1,8771,12053,22737,25075
+picows_cyt,1.11.1,8955,12360,23660,26226
+boost,1.90.0,12706,12706,24204,24204
