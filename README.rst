@@ -1,7 +1,15 @@
 Method
 ================
 
-This benchmark measures the latency of various Python WebSocket clients.
+.. _picows: https://github.com/tarasko/picows
+
+.. _aiohttp: https://github.com/aio-libs/aiohttp
+
+.. _websockets: https://github.com/python-websockets/websockets
+
+.. _c++ boost beast: https://github.com/boostorg/beast
+
+This benchmark measures the latency of various Python asyncio-based WebSocket client libraries.
 
 Each client connects to a WebSocket server over the loopback interface. The client sends a message of a specified size and waits for the response. Once the response is received, the client immediately sends the next message.
 
@@ -9,8 +17,10 @@ This request–response loop runs for a fixed period of time, after which the av
 
 All clients are tested in the same environment and compared against the same high-performance C++ server.
 
+Tested libraries: `picows`_, `aiohttp`_, `websockets`_, `c++ boost beast`_ for reference.
+
 Results (higher is better)
-=======
+==========================
 
 .. image:: results/benchmark-256.png
     :align: center
@@ -98,6 +108,7 @@ Contribute
 ==========
 
 Feel free to add other libraries to this benchmark. PRs are welcome!
+
 
 
 
