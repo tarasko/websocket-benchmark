@@ -78,6 +78,9 @@ def main():
     parser.add_argument("--loops", default="asyncio,uvloop", help="Comma separated list of event loops")
     parser.add_argument("--no-plot", action="store_true", help="Disable plots")
     parser.add_argument("--save-plot", action="store_true", help="Save plot to results folder instead of showing them")
+
+    # I'm not sure if I did tornado client in the best possible way.
+    # It shows remarkably bad performance, worse than websocket, so I disable it for now.
     parser.add_argument("--clients", default="websockets,aiohttp,picows,picows_cyt,boost", help="Comma separated list of clients")
     parser.add_argument("--skip-tcp", action="store_true", help="Disable plain tcp client test")
     parser.add_argument("--skip-ssl", action="store_true", help="Disable ssl client test")

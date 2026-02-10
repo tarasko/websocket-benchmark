@@ -5,4 +5,5 @@ picows
 numpy
 pandas
 matplotlib
+tornado
 uvloop; sys_platform != 'win32'
