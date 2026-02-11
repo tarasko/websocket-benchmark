@@ -6,4 +6,6 @@ numpy
 pandas
 matplotlib
 tornado
+ws4py
+wsaccel
 uvloop; sys_platform != 'win32'

@@ -3,8 +3,11 @@ import asyncio
 import importlib
 import os
 import platform
+import pstats
 import ssl
+import cProfile
 from pathlib import Path
+from pstats import SortKey
 
 import uvloop
 
@@ -81,9 +84,11 @@ def main():
 
     # I'm not sure if I did tornado client in the best possible way.
     # It shows remarkably bad performance, worse than websocket, so I disable it for now.
-    parser.add_argument("--clients", default="websockets,aiohttp,picows,picows_cyt,boost", help="Comma separated list of clients")
+    parser.add_argument("--clients", default="tornado,ws4py,websockets,aiohttp,picows,picows_cyt,boost", help="Comma separated list of clients")
     parser.add_argument("--skip-tcp", action="store_true", help="Disable plain tcp client test")
     parser.add_argument("--skip-ssl", action="store_true", help="Disable ssl client test")
+
+    parser.add_argument("--profile", action="store_true", help="Enable profiling, print profile stats afterwards")
 
     args = parser.parse_args()
 
@@ -104,6 +109,11 @@ def main():
     if not args.skip_tcp:
         tcp_ssl_targets.append((None, tcp_url))
 
+    pr = cProfile.Profile()
+
+    if args.profile:
+        pr.enable()
+
     pd_columns = []
     results = []
     for module_idx, module_name in enumerate(modules):
@@ -115,7 +125,7 @@ def main():
         for ctx, url in tcp_ssl_targets:
             msg = os.urandom(msg_size)
 
-            if m.name not in ('c++ beast',):
+            if m.name not in ('c++ beast', 'ws4py'):
                 for loop in loops:
                     if loop == "uvloop":
                         asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
@@ -138,6 +148,11 @@ def main():
                     if module_idx == 0:
                         pd_columns.append(f"{tcp_ssl_name}-{loop}")
                     module_results.append(rps)
+
+    if args.profile:
+        pr.disable()
+        pr.print_stats()
+        return
 
     df = pd.DataFrame(results, index=pd_index, columns=pd_columns)
     if not args.no_plot:
