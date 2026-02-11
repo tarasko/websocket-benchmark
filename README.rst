@@ -65,9 +65,13 @@ Picows
 All websocket frame building and parsing implemented completely in C. The library is very efficient with memory usage and tries to minimize memory coping and Python object creations.
 The data interface is not async, it is simple callbacks through method overloading. 
 This was a deliberate design choice:
-* async interface introduces an extra hop through event loop. The data is not immediately delivered to the user. First asyncio.Future is created and set and then event loop yields it on the next iteration.
-* recieved data doesn't have to be copied. User handlers can efficiently process read memory buffer directly through the memoryview.
-* cython definitions are available. You can completely eliminate python vectorcall protocol when calling library methods on the most critical path.
+
+- async interface introduces an extra hop through the event loop. The data is not immediately delivered to the user. First asyncio.Future is created and set and then event loop yields it on the next iteration.
+
+- when data can be delivered immediately it doesn't have to be copied. User handlers can efficiently process read memory buffer directly through the memoryview.
+
+- cython definitions are available. You can completely eliminate python vectorcall protocol when calling library methods on the most critical path.
+
 
 If performance is your concern, you should definitely give it a try.
 
@@ -159,6 +163,7 @@ Contribute
 ==========
 
 Feel free to add other libraries to this benchmark. PRs are welcome!
+
 
 
 
