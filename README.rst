@@ -39,7 +39,7 @@ Results (higher is better)
 
 Tornado
 =======
-Not really a tornado when it comes to websockets. Can't say anything about HTTP though. This framework came consistently last across all async libraries. I briefly check its source, they parse and build websocket frames in pure python, but apart from that I didn't notice anything super unusual. 
+Not really a tornado when it comes to websockets. Can't say anything about HTTP though. This framework came consistently last across all async libraries. I briefly checked its source, they parse and build websocket frames in pure python, but apart from that I didn't notice anything super unusual. 
 
 Ws4py
 =======
@@ -159,6 +159,7 @@ Contribute
 ==========
 
 Feel free to add other libraries to this benchmark. PRs are welcome!
+
 
 
 
