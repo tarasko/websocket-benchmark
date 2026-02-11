@@ -7,7 +7,13 @@ Method
 
 .. _websockets: https://github.com/python-websockets/websockets
 
+.. _ws4py: https://github.com/Lawouach/WebSocket-for-Python
+
+.. _tornado: https://github.com/tornadoweb/tornado
+
 .. _c++ boost beast: https://github.com/boostorg/beast
+
+.. _wsaccel: https://github.com/methane/wsaccel
 
 This benchmark measures the latency of various Python asyncio-based WebSocket client libraries.
 
@@ -17,7 +23,7 @@ This request–response loop runs for a fixed period of time, after which the av
 
 All clients are tested in the same environment and compared against the same high-performance C++ server.
 
-Tested libraries: `picows`_, `aiohttp`_, `websockets`_, `c++ boost beast`_ for reference.
+Tested libraries: `picows`_, `aiohttp`_, `websockets`_, `ws4py`_, `tornado`_, `c++ boost beast`_ for reference.
 
 Results (higher is better)
 ==========================
@@ -30,6 +36,33 @@ Results (higher is better)
 
 .. image:: results/benchmark-100000.png
     :align: center
+
+Tornado
+=======
+Not really a tornado when it comes to websockets. Can't say anything about HTTP though. This framework came consistently last across all async libraries. I briefly check its source, they parse and build websocket frames in pure python, but apart from that I didn't notice anything super unusual. 
+
+Ws4py
+=======
+First of all, this project seems to be NOT well maintained anymore. The author said so himself https://github.com/Lawouach/WebSocket-for-Python/issues/297.
+Still I added it because it is quite popular and has >1k stars on github.
+
+Second, I did ws4py synchronous clinet, and it is not actually fair to compare it against async library that use event loops. Async libraries have almost always an extra system call for `select`, `epoll_wait` before reading data.
+This extra system call introduce significant latency.
+
+Third, **NEVER EVER USE py4ws WITHOUT** `wsaccel`_. ws4py has no C speedups for masking frame payload. It become 100 times slower than any other library when sending any websocket frames of medium size (8192 bytes)
+
+Websockets
+==========
+A very popular websocket client library with the modern async interface. But for some reason significantly slower than its main competitor aiohttp. `aiohttp`_ offers similar features and a similar async interface, but it is just faster!
+Users of `websockets`_ either don't care about performance at all, which is absolutely fine, it is Python after all. Or they are not aware of performance penalties. Or they need some specific features that aiohttp doesn't have.
+
+Aiohttp
+=======
+The most famous asynchronous HTTP Client/Server with websockets support. They do quite well across all message sizes while providing async read/write interface. Nothing really to add here. I'd say it is a default choice if you just need a simple async websocket client.
+
+Picows
+======
+
 
 Build C++ Boost.Beast websocket echo server and client
 ======================================================
@@ -108,6 +141,7 @@ Contribute
 ==========
 
 Feel free to add other libraries to this benchmark. PRs are welcome!
+
 
 
 
