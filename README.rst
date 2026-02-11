@@ -46,7 +46,7 @@ Ws4py
 First of all, this project seems to be NOT well maintained anymore. The author said so himself https://github.com/Lawouach/WebSocket-for-Python/issues/297.
 Still I added it because it is quite popular and has >1k stars on github.
 
-Second, I did ws4py synchronous clinet, and it is not actually fair to compare it against async library that use event loops. Async libraries have almost always an extra system call for `select`, `epoll_wait` before reading data.
+Second, I did ws4py synchronous client, it is not actually fair to compare it against async libraries that use event loops. Async libraries have almost always an extra system call for `select`, `epoll_wait` before reading data.
 This extra system call introduce significant latency.
 
 Third, **NEVER EVER USE py4ws WITHOUT** `wsaccel`_. ws4py has no C speedups for masking frame payload. It become 100 times slower than any other library when sending any websocket frames of medium size (8192 bytes)
@@ -62,7 +62,25 @@ The most famous asynchronous HTTP Client/Server with websockets support. They do
 
 Picows
 ======
+All websocket frame building and parsing implemented completely in C. The library is very efficient with memory usage and tries to minimize memory coping and Python object creations.
+The data interface is not async, it is simple callbacks through method overloading. 
+This was a deliberate design choice:
+* async interface introduces an extra hop through event loop. The data is not immediately delivered to the user. First asyncio.Future is created and set and then event loop yields it on the next iteration.
+* recieved data doesn't have to be copied. User handlers can efficiently process read memory buffer directly through the memoryview.
+* cython definitions are available. You can completely eliminate python vectorcall protocol when calling library methods on the most critical path.
 
+If performance is your concern, you should definitely give it a try.
+
+Boost.Beast
+===========
+I added C++ client to see how good python libraries perform in comparison with actual high perfomance C++ code. Suprisingly when message size is >2K picows + uvloop can be even faster than Beast.
+After analyzing strace output I realized that Beast has made a dubious design decision. It always does first read with the maximum size of 1536 bytes. It is hardcode and afaik there is no option to change it.
+So if you transmit frames bigger than roughly 1536 bytes Beast will always do 2 system calls to just read your data.
+picows/uvloop has a bigger read buffer, so it is almost always a single system call.
+
+Uvloop
+======
+Unfortunately, uvloop is not very well maintained anymore. It take years to get PRs merged, but it is still a little faster than vanilla asyncio from Python-3.13.
 
 Build C++ Boost.Beast websocket echo server and client
 ======================================================
@@ -141,6 +159,7 @@ Contribute
 ==========
 
 Feel free to add other libraries to this benchmark. PRs are welcome!
+
 
 
 
