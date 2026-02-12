@@ -49,7 +49,7 @@ Still I added it because it is quite popular and has >1k stars on github.
 Second, I did ws4py synchronous client, it is not actually fair to compare it against async libraries that use event loops. Async libraries have almost always an extra system call for `select`, `epoll_wait` before reading data.
 This extra system call introduces significant latency.
 
-Third, **NEVER EVER USE py4ws WITHOUT** `wsaccel`_. ws4py has no C speedups for masking frame payload. It become 100 times slower than any other library when sending any websocket frames of medium size (8192 bytes)
+Third, **NEVER EVER USE py4ws WITHOUT** `wsaccel`_. ws4py has no C speedups for masking frame payload. It becomes 100 times slower than any other library when sending websocket frames of medium size (8192 bytes)
 
 Websockets
 ==========
@@ -161,6 +161,7 @@ Contribute
 ==========
 
 Feel free to add other libraries to this benchmark. PRs are welcome!
+
 
 
 
