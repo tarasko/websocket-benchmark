@@ -28,6 +28,16 @@ def create_client_ssl_context():
 
 
 def print_result_and_plot(msg_size, results: pd.DataFrame, save_plot):
+    colors_map = {
+        "tornado": "lightblue",
+        "ws4py": "yellow",
+        "websockets": "orange",
+        "aiohttp": "green",
+        "picows": "red",
+        "picows_cyt": "darkred",
+        "boost": "black"
+    }
+
     try:
         import matplotlib.pyplot as plt
 
@@ -47,6 +57,7 @@ def print_result_and_plot(msg_size, results: pd.DataFrame, save_plot):
                 data.loc[client],
                 width,
                 label=name,
+                color=colors_map.get(client)
             )
 
         plt.xticks(x + width * (len(clients) - 1) / 2, tests)
