@@ -67,7 +67,7 @@ This was a deliberate design choice because:
 
 - async interface introduces an extra hop through the event loop. The data is not immediately delivered to the user. First asyncio.Future is created and set and then event loop yields it on the next iteration.
 
-- when data can be delivered immediately it doesn't have to be copied. User handlers can efficiently process read memory buffer directly through the memoryview.
+- when data can be delivered immediately it doesn't have to be copied. User handlers can efficiently process messages from read memory buffer directly through the memoryview.
 
 - cython definitions are available. You can completely eliminate python vectorcall protocol when calling library methods or providing callbacks on the most critical path.
 
@@ -161,6 +161,7 @@ Contribute
 ==========
 
 Feel free to add other libraries to this benchmark. PRs are welcome!
+
 
 
 
