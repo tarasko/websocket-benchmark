@@ -29,8 +29,8 @@ def create_client_ssl_context():
 
 def print_result_and_plot(msg_size, results: pd.DataFrame, save_plot):
     colors_map = {
-        "tornado": "lightblue",
-        "ws4py": "yellow",
+        "tornado": "aquamarine",
+        "ws4py": "lightsteelblue",
         "websockets": "orange",
         "aiohttp": "green",
         "picows": "red",
@@ -47,7 +47,7 @@ def print_result_and_plot(msg_size, results: pd.DataFrame, save_plot):
         tests = [n.replace('-', '\n') for n in data.columns]
 
         x = np.arange(len(tests))
-        width = 0.09
+        width = 0.08
 
         plt.figure(figsize = (8, 4))
 
@@ -65,6 +65,7 @@ def print_result_and_plot(msg_size, results: pd.DataFrame, save_plot):
         plt.title(f'Echo round-trip performance \n(asyncio-{platform.python_version()}, uvloop-{uvloop.__version__}, msg_size={msg_size})')
         plt.legend()
         plt.tight_layout()
+        plt.grid(axis='y', linestyle = '--', linewidth = 0.5)
 
         if save_plot:
             png_path = Path(os.path.dirname(
