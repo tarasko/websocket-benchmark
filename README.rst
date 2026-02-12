@@ -62,9 +62,8 @@ The most famous asynchronous HTTP Client/Server with websockets support. They do
 
 Picows
 ======
-All websocket frame building and parsing implemented completely in C. The library is very efficient with memory usage and tries to minimize memory copying and Python object creations.
-The data interface is not async, it is simple callbacks through method overloading. 
-This was a deliberate design choice:
+A lightweight websocket client and server library with a focus on performance. Frame building and parsing implemented in C. The library is very efficient with memory usage and tries to minimize memory copying and Python object creations. The data interface is not async, it is simple callbacks through method overloading. 
+This was a deliberate design choice because:
 
 - async interface introduces an extra hop through the event loop. The data is not immediately delivered to the user. First asyncio.Future is created and set and then event loop yields it on the next iteration.
 
@@ -162,6 +161,7 @@ Contribute
 ==========
 
 Feel free to add other libraries to this benchmark. PRs are welcome!
+
 
 
 
