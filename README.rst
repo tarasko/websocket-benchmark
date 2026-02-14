@@ -65,7 +65,7 @@ Picows
 A lightweight websocket client and server library for asyncio with a focus on performance. Frame building and parsing implemented in C. The library is very efficient with memory usage and tries to minimize memory copying and Python object creations. Connection establishing is async, while the data interface is not async, it is simple callbacks through method overloading. 
 This was a deliberate design choice because:
 
-- async interface introduces an extra hop through the event loop. The data is not immediately delivered to the user. First asyncio.Future is created and set and then event loop yields it on the next iteration.
+- async interface introduces an extra hop through the event loop. The data is not immediately delivered to the user. First asyncio.Future is created and set and then event loop wakes up user coroutine it on next iteration.
 
 - when data can be delivered immediately it doesn't have to be copied. User handlers can efficiently process messages from read memory buffer directly through the memoryview.
 
@@ -161,6 +161,7 @@ Contribute
 ==========
 
 Feel free to add other libraries to this benchmark. PRs are welcome!
+
 
 
 
