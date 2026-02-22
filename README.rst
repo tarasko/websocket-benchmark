@@ -123,7 +123,10 @@ Build C++ Boost.Beast websocket echo server and client
 
 .. code-block::
 
+  # On Linux, MacOS
   $ cmake --build ./build --parallel
+  # On Windows
+  $ cmake --build ./build --parallel --config Release
 
 6. Run websocket echo server. Must be run from the project root folder, otherwise it will complain about missing certificate. Server will listen on 2 ports, 9001: plain websocket, 9002: ssl websocket
 
@@ -164,6 +167,7 @@ Contribute
 ==========
 
 Feel free to add other libraries to this benchmark. PRs are welcome!
+
 
 
 
