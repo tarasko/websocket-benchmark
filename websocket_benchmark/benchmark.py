@@ -9,7 +9,10 @@ import cProfile
 from pathlib import Path
 from pstats import SortKey
 
-import uvloop
+if os.name != 'nt':
+    import uvloop
+else:
+    import winloop
 
 from logging import getLogger
 import numpy as np
@@ -62,7 +65,10 @@ def print_result_and_plot(msg_size, results: pd.DataFrame, save_plot):
 
         plt.xticks(x + width * (len(clients) - 1) / 2, tests)
         plt.ylabel("request/second")
-        plt.title(f'Echo round-trip performance \n(asyncio-{platform.python_version()}, uvloop-{uvloop.__version__}, msg_size={msg_size})')
+        if os.name != 'nt':
+            plt.title(f'Echo round-trip performance \n(asyncio-{platform.python_version()}, uvloop-{uvloop.__version__}, msg_size={msg_size})')
+        else:
+            plt.title(f'Echo round-trip performance \n(asyncio-{platform.python_version()}, winloop-{winloop.__version__}, msg_size={msg_size})')
         plt.legend()
         plt.tight_layout()
         plt.grid(axis='y', linestyle = '--', linewidth = 0.5)
@@ -90,7 +96,10 @@ def main():
     parser.add_argument("--ssl-port", default="9002", help="Server port with ssl websockets")
     parser.add_argument("--msg-size", default="256", help="Message size")
     parser.add_argument("--duration", default="5", help="duration of test in seconds")
-    parser.add_argument("--loops", default="asyncio,uvloop", help="Comma separated list of event loops")
+    if os.name != 'nt':
+        parser.add_argument("--loops", default="asyncio,uvloop", help="Comma separated list of event loops")
+    else:
+        parser.add_argument("--loops", default="asyncio,winloop", help="Comma separated list of event loops")
     parser.add_argument("--no-plot", action="store_true", help="Disable plots")
     parser.add_argument("--save-plot", action="store_true", help="Save plot to results folder instead of showing them")
 
@@ -141,6 +150,8 @@ def main():
                 for loop in loops:
                     if loop == "uvloop":
                         asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+                    elif loop == 'winloop':
+                        asyncio.set_event_loop_policy(winloop.EventLoopPolicy())
                     else:
                         asyncio.set_event_loop_policy(None)
 
