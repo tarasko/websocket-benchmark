@@ -115,7 +115,7 @@ Build C++ Boost.Beast websocket echo server and client
 
   $ conan install . --output-folder=build --build=missing
   $ cd build
-  $ cmake .. -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release
+  $ cmake .. -DCMAKE_TOOLCHAIN_FILE="conan_toolchain.cmake" -DCMAKE_BUILD_TYPE=Release
   # Go back to the root folder
   $ cd ..
 
@@ -164,6 +164,7 @@ Contribute
 ==========
 
 Feel free to add other libraries to this benchmark. PRs are welcome!
+
 
 
 
