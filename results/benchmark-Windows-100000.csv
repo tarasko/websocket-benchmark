@@ -1,0 +1,7 @@
+,version,ssl-asyncio_pro,ssl-asyncio_sel,ssl-winloop,tcp-asyncio_pro,tcp-asyncio_sel,tcp-winloop
+tornado,6.5.4,2196,2969,2939,3235,4975,5503
+ws4py,0.6.0,2523,2523,2523,4503,4503,4503
+websockets,16.0,2310,2647,2817,5797,6321,6844
+aiohttp,3.13.3,2437,2778,2940,6586,7352,7932
+picows,1.15.0,2623,3025,3114,7701,9382,9606
+boost,1.90.0,3145,3145,3145,8728,8728,8728
