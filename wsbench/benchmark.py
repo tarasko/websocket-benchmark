@@ -69,9 +69,9 @@ def print_result_and_plot(msg_size, results: pd.DataFrame, save_plot):
             'Echo round-trip performance',            
         ]        
         if os.name != 'nt':
-            headers.append(f'(Python-{platform.python_version()}, uvloop-{uvloop.__version__}, msg_size={msg_size})')
+            headers.append(f'Python-{platform.python_version()}, uvloop-{uvloop.__version__}, msg_size={msg_size}')
         else:
-            headers.append(f'(Python-{platform.python_version()}, winloop-{winloop.__version__}, msg_size={msg_size})')
+            headers.append(f'Python-{platform.python_version()}, winloop-{winloop.__version__}, msg_size={msg_size}')
         headers.append(f"{platform.system()} - {platform.processor()}")
         plt.title("\n".join(headers))
         plt.legend()
@@ -108,12 +108,9 @@ def main():
     parser.add_argument("--no-plot", action="store_true", help="Disable plots")
     parser.add_argument("--save-plot", action="store_true", help="Save plot to results folder instead of showing them")
 
-    # I'm not sure if I did tornado client in the best possible way.
-    # It shows remarkably bad performance, worse than websocket, so I disable it for now.
-    if os.name != 'nt':
-        parser.add_argument("--clients", default="tornado,ws4py,websockets,aiohttp,picows,picows_cyt,boost", help="Comma separated list of clients")
-    else:
-        parser.add_argument("--clients", default="tornado,ws4py,websockets,aiohttp,picows,boost", help="Comma separated list of clients")
+    parser.add_argument("--clients",
+                        default="tornado,ws4py,websockets,aiohttp,picows,boost",
+                        help="Comma separated list of clients")
     parser.add_argument("--skip-tcp", action="store_true", help="Disable plain tcp client test")
     parser.add_argument("--skip-ssl", action="store_true", help="Disable ssl client test")
 
@@ -124,7 +121,7 @@ def main():
     msg_size = int(args.msg_size)
     loops = args.loops.split(",")
     pd_index = (args.clients.split(","))
-    modules = (f"websocket_benchmark.client_{c}" for c in pd_index)
+    modules = (f"wsbench.client_{c}" for c in pd_index)
 
     duration = int(args.duration)
 
@@ -163,7 +160,7 @@ def main():
                     elif loop == 'asyncio_sel':
                         asyncio.set_event_loop_policy(asyncio._WindowsSelectorEventLoopPolicy())
                     else:
-                        asyncio.set_event_loop_policy(asyncio._WindowsProactorEventLoopPolicy())
+                        asyncio.set_event_loop_policy(asyncio.DefaultEventLoopPolicy())
 
                     tcp_ssl_name = 'tcp' if ctx is None else 'ssl'
                     print(f"Run {m.name} {tcp_ssl_name} {msg_size} bytes {loop} test")

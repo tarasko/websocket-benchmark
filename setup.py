@@ -14,7 +14,7 @@ else:
     libraries = None
 
 extensions = [
-    Extension("websocket_benchmark.client_picows_cyt", ["websocket_benchmark/client_picows_cyt.pyx"], libraries=libraries),
+    Extension("wsbench.client_picows_cyt", ["wsbench/client_picows_cyt.pyx"], libraries=libraries),
 ]
 
 setup(

@@ -8,6 +8,9 @@ name = "tornado"
 from tornado import version
 
 
+# I'm not sure if I did tornado client in the best possible way.
+
+
 async def run(args, url: str, msg: bytes, duration: float, warmup_cycles_cnt: int, ssl_context):
     req = HTTPRequest(
         url=url,
