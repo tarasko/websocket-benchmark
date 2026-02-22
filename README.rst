@@ -28,16 +28,28 @@ Tested libraries: `picows`_, `aiohttp`_, `websockets`_, `ws4py`_, `tornado`_, `c
 Results (higher is better)
 ==========================
 
-.. image:: results/benchmark-256.png
+.. image:: results/benchmark-Linux-256.png
     :align: center
 
-.. image:: results/benchmark-8192.png
+.. image:: results/benchmark-Linux-8192.png
     :align: center
 
-.. image:: results/benchmark-100000.png
+.. image:: results/benchmark-Linux-100000.png
     :align: center
 
-.. image:: results/benchmark-2000000.png
+.. image:: results/benchmark-Linux-2000000.png
+    :align: center
+
+.. image:: results/benchmark-Windows-256.png
+    :align: center
+
+.. image:: results/benchmark-Windows-8192.png
+    :align: center
+
+.. image:: results/benchmark-Windows-100000.png
+    :align: center
+
+.. image:: results/benchmark-Windows-2000000.png
     :align: center
 
 Tornado
@@ -83,9 +95,24 @@ After analyzing strace output I realized that Beast has made a dubious design de
 So if you transmit frames bigger than roughly 1536 bytes Beast will always do 2 system calls to just read your data.
 picows/uvloop has a bigger read buffer, so it is almost always a single system call.
 
+Windows Proactor vs Reactor loop
+================================
+Asyncio has 2 different loops on Windows: ProactorEventLoop and SelectorEventLoop.
+Proactor loop is used by default since Python 3.10.
+This benchmark shows that SelectorEventLoop consistently beats ProactorEventLoop in terms of
+client latency and performance.
+This might not be the case for the server side, especially when hundreds of client are connected, since
+SelectorEventLoop doesn't scale well for big number of connections.
+
 Uvloop
 ======
 Unfortunately, uvloop is not very well maintained anymore. It take years to get PRs merged, but it is still a little faster than vanilla asyncio from Python-3.13.
+Not available on Windows.
+
+Winloop
+=======
+Winloop is a fork of uvloop with the goal to bring uvloop performance to Windows users.
+Benchamark shows that it is consistently faster than vanilla asyncio.
 
 Build C++ Boost.Beast websocket echo server and client
 ======================================================
