@@ -37,6 +37,9 @@ async def run(args, endpoint: str, msg: bytes, duration: float, warmup_cycles_cn
 
             self._transport.send(WSMsgType.BINARY, msg)
 
-    (_, client) = await ws_connect(PicowsClientListener, endpoint, ssl_context=ssl_context)
+    (_, client) = await ws_connect(PicowsClientListener, endpoint,
+                                   ssl_context=ssl_context,
+                                   read_buffer_init_size=len(msg) + 1024,
+                                   zero_copy_unsafe_ssl_write=True)
     await client._transport.wait_disconnected()
     return client.result

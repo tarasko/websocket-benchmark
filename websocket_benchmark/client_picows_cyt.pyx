@@ -80,7 +80,9 @@ async def run(args, url: str, data: bytes, duration: float, warmup_cycles_cnt: i
     cdef EchoClientListener client
     (_, client) = await ws_connect(lambda: EchoClientListener(data, duration, warmup_cycles_cnt),
                                    url,
-                                   ssl_context=ssl_context)
+                                   ssl_context=ssl_context,
+                                   read_buffer_init_size = len(data) + 1024,
+                                   zero_copy_unsafe_ssl_write=True)
     await client._transport.wait_disconnected()
     return client.rps
 
