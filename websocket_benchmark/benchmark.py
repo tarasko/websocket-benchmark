@@ -104,13 +104,16 @@ def main():
     if os.name != 'nt':
         parser.add_argument("--loops", default="asyncio,uvloop", help="Comma separated list of event loops")
     else:
-        parser.add_argument("--loops", default="asyncio,winloop", help="Comma separated list of event loops")
+        parser.add_argument("--loops", default="asyncio_pro,asyncio_sel,winloop", help="Comma separated list of event loops")
     parser.add_argument("--no-plot", action="store_true", help="Disable plots")
     parser.add_argument("--save-plot", action="store_true", help="Save plot to results folder instead of showing them")
 
     # I'm not sure if I did tornado client in the best possible way.
     # It shows remarkably bad performance, worse than websocket, so I disable it for now.
-    parser.add_argument("--clients", default="tornado,ws4py,websockets,aiohttp,picows,picows_cyt,boost", help="Comma separated list of clients")
+    if os.name != 'nt':
+        parser.add_argument("--clients", default="tornado,ws4py,websockets,aiohttp,picows,picows_cyt,boost", help="Comma separated list of clients")
+    else:
+        parser.add_argument("--clients", default="tornado,ws4py,websockets,aiohttp,picows,boost", help="Comma separated list of clients")
     parser.add_argument("--skip-tcp", action="store_true", help="Disable plain tcp client test")
     parser.add_argument("--skip-ssl", action="store_true", help="Disable ssl client test")
 
@@ -157,8 +160,10 @@ def main():
                         asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
                     elif loop == 'winloop':
                         asyncio.set_event_loop_policy(winloop.EventLoopPolicy())
+                    elif loop == 'asyncio_sel':
+                        asyncio.set_event_loop_policy(asyncio._WindowsSelectorEventLoopPolicy())
                     else:
-                        asyncio.set_event_loop_policy(None)
+                        asyncio.set_event_loop_policy(asyncio._WindowsProactorEventLoopPolicy())
 
                     tcp_ssl_name = 'tcp' if ctx is None else 'ssl'
                     print(f"Run {m.name} {tcp_ssl_name} {msg_size} bytes {loop} test")
