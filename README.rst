@@ -187,13 +187,14 @@ Build python benchmark
 
 .. code-block::
 
-  $ python -m websocket_benchmark.benchmark --msg-size 256 --duration 10
+  $ python -m wsbench.benchmark --msg-size 256 --duration 10
 
 
 Contribute
 ==========
 
 Feel free to add other libraries to this benchmark. PRs are welcome!
+
 
 
 
