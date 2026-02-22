@@ -8,7 +8,10 @@ name = "c++ beast"
 
 
 async def run(args, url: str, msg: bytes, duration: float, warmup_cycles_cnt: int, ssl_context):
-    client_path = Path(os.path.dirname(__file__)) / '..' / 'build' / 'src' / 'ws_echo_client'
+    if os.name == 'nt':
+        client_path = Path(os.path.dirname(__file__)) / '..' / 'build' / 'src' / 'Release' / 'ws_echo_client.exe'
+    else:
+        client_path = Path(os.path.dirname(__file__)) / '..' / 'build' / 'src' / 'ws_echo_client'
     working_dir = Path(os.path.dirname(__file__)) / '..'
 
     pr = subprocess.run([client_path,

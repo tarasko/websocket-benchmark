@@ -65,19 +65,24 @@ def print_result_and_plot(msg_size, results: pd.DataFrame, save_plot):
 
         plt.xticks(x + width * (len(clients) - 1) / 2, tests)
         plt.ylabel("request/second")
+        headers = [
+            'Echo round-trip performance',            
+        ]        
         if os.name != 'nt':
-            plt.title(f'Echo round-trip performance \n(asyncio-{platform.python_version()}, uvloop-{uvloop.__version__}, msg_size={msg_size})')
+            headers.append(f'(Python-{platform.python_version()}, uvloop-{uvloop.__version__}, msg_size={msg_size})')
         else:
-            plt.title(f'Echo round-trip performance \n(asyncio-{platform.python_version()}, winloop-{winloop.__version__}, msg_size={msg_size})')
+            headers.append(f'(Python-{platform.python_version()}, winloop-{winloop.__version__}, msg_size={msg_size})')
+        headers.append(f"{platform.system()} - {platform.processor()}")
+        plt.title("\n".join(headers))
         plt.legend()
         plt.tight_layout()
         plt.grid(axis='y', linestyle = '--', linewidth = 0.5)
 
         if save_plot:
             png_path = Path(os.path.dirname(
-                __file__)) / '..' / 'results' / f'benchmark-{msg_size}.png'
+                __file__)) / '..' / 'results' / f'benchmark-{platform.system()}-{msg_size}.png'
             data_path = Path(os.path.dirname(
-                __file__)) / '..' / 'results' / f'benchmark-{msg_size}.csv'
+                __file__)) / '..' / 'results' / f'benchmark-{platform.system()}-{msg_size}.csv'
             plt.savefig(png_path, dpi=150, bbox_inches="tight")
             plt.close()
 

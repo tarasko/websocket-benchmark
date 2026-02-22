@@ -8,4 +8,5 @@ build
 *.c
 *.html
 *.so
+*.pyd
 __pycache__

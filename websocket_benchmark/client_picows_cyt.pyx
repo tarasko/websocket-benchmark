@@ -4,45 +4,25 @@ from libc.errno cimport errno
 from picows.picows cimport WSFrame, WSTransport, WSListener, WSMsgType
 from picows import ws_connect, __version__ as version
 
+from time import time
+
 _logger = getLogger(__name__)
 
 
 name = "picows_cyt"
 
 
-cdef extern from "<stdlib.h>" nogil:
-    enum clockid_t:
-        CLOCK_REALTIME
-        CLOCK_MONOTONIC
-        CLOCK_MONOTONIC_RAW
-
-    cdef struct timespec:
-        long tv_sec
-        long tv_nsec
-
-    int clock_gettime (clockid_t clock, timespec *ts)
-
-
-cdef double get_now_timestamp() except -1.0:
-    cdef timespec tspec
-
-    if clock_gettime(CLOCK_REALTIME, &tspec) == -1:
-        raise RuntimeError("clock_gettime failed: %d", errno)
-
-    return <double>tspec.tv_sec + <double>tspec.tv_nsec * 1e-9
-
-
 cdef class EchoClientListener(WSListener):
     cdef:
         WSTransport _transport
         double _start_time
-        float _duration
+        double _duration
         int _warmup_cycles_cnt
         int _cnt
         bytes _data
         readonly int rps
 
-    def __init__(self, bytes data, float duration, int warmup_cycles_cnt):
+    def __init__(self, bytes data, double duration, int warmup_cycles_cnt):
         super().__init__()
         self._transport = None
         self._start_time = 0
@@ -55,11 +35,11 @@ cdef class EchoClientListener(WSListener):
     cpdef on_ws_connected(self, WSTransport transport):
         self._transport = transport
         if self._warmup_cycles_cnt == 0:
-            self._start_time = get_now_timestamp()
+            self._start_time = time()
         self._transport.send(WSMsgType.BINARY, self._data)
 
     cpdef on_ws_frame(self, WSTransport transport, WSFrame frame):
-        cdef double now = get_now_timestamp()
+        cdef double now = time()
 
         if self._warmup_cycles_cnt > 0:
             self._warmup_cycles_cnt -= 1
@@ -78,11 +58,12 @@ cdef class EchoClientListener(WSListener):
 
 async def run(args, url: str, data: bytes, duration: float, warmup_cycles_cnt: int, ssl_context):
     cdef EchoClientListener client
-    (_, client) = await ws_connect(lambda: EchoClientListener(data, duration, warmup_cycles_cnt),
+    cdef WSTransport transport
+    (transport, client) = await ws_connect(lambda: EchoClientListener(data, duration, warmup_cycles_cnt),
                                    url,
                                    ssl_context=ssl_context,
                                    read_buffer_init_size = len(data) + 1024,
                                    zero_copy_unsafe_ssl_write=True)
-    await client._transport.wait_disconnected()
+    await transport.wait_disconnected()
     return client.rps
 
