@@ -44,19 +44,20 @@ def print_result_and_plot(msg_size, results: pd.DataFrame, save_plot):
 
     try:
         import matplotlib.pyplot as plt
+        from matplotlib.font_manager import FontProperties
 
         clients = results.index
         client_names = results.index + "-" + results.version
         data = results.drop(columns=["version"])
-        tests = [n.replace('-', '\n') for n in data.columns]
+        tests = [n for n in data.columns]
 
         x = np.arange(len(tests))
         width = 0.08
 
-        plt.figure(figsize = (8, 4))
+        fig, ax = plt.subplots(figsize=(8, 4.8))
 
         for i, (client, name) in enumerate(zip(clients, client_names)):
-            plt.bar(
+            ax.bar(
                 x + i * width,
                 data.loc[client],
                 width,
@@ -64,8 +65,8 @@ def print_result_and_plot(msg_size, results: pd.DataFrame, save_plot):
                 color=colors_map.get(client)
             )
 
-        plt.xticks(x + width * (len(clients) - 1) / 2, tests)
-        plt.ylabel("request/second")
+        ax.set_xticks(x + width * (len(clients) - 1) / 2, tests)
+        ax.set_ylabel("request/second")
         headers = [
             'Echo round-trip performance',            
         ]        
@@ -74,18 +75,62 @@ def print_result_and_plot(msg_size, results: pd.DataFrame, save_plot):
         else:
             headers.append(f'Python-{platform.python_version()}, winloop-{winloop.__version__}, msg_size={msg_size}')
         headers.append(f"{platform.system()} - {platform.processor()}")
-        plt.title("\n".join(headers))
-        plt.legend()
-        plt.tight_layout()
-        plt.grid(axis='y', linestyle = '--', linewidth = 0.5)
+        ax.set_title("\n".join(headers))
+        handles, labels = ax.get_legend_handles_labels()
+        fig.canvas.draw()
+        renderer = fig.canvas.get_renderer()
+        axes_width_px = ax.get_window_extent(renderer=renderer).width
+        font_properties = FontProperties(size=plt.rcParams["legend.fontsize"])
+
+        text_widths = [
+            renderer.get_text_width_height_descent(label, font_properties, ismath=False)[0]
+            for label in labels
+        ]
+
+        legend_cols = 1
+        handle_width_px = 40
+        column_spacing_px = 24
+        for candidate_cols in range(len(labels), 0, -1):
+            candidate_rows = int(np.ceil(len(labels) / candidate_cols))
+            column_widths = []
+            for col in range(candidate_cols):
+                column_items = text_widths[col::candidate_cols]
+                if not column_items:
+                    continue
+                column_widths.append(max(column_items) + handle_width_px)
+
+            total_width = sum(column_widths) + max(len(column_widths) - 1, 0) * column_spacing_px
+            if total_width <= axes_width_px:
+                legend_cols = candidate_cols
+                break
+
+        legend_rows = int(np.ceil(len(handles) / legend_cols))
+        legend_order = []
+        for col in range(legend_cols):
+            for row in range(legend_rows):
+                idx = row * legend_cols + col
+                if idx < len(handles):
+                    legend_order.append(idx)
+        ax.legend(
+            [handles[idx] for idx in legend_order],
+            [labels[idx] for idx in legend_order],
+            loc="upper center",
+            bbox_to_anchor=(0.0, -0.22, 1.0, 0.1),
+            mode="expand",
+            ncol=legend_cols,
+            frameon=True,
+            borderaxespad=0.0,
+        )
+        fig.tight_layout(rect=(0, 0.08, 1, 1))
+        ax.grid(axis='y', linestyle='--', linewidth=0.5)
 
         if save_plot:
             png_path = Path(os.path.dirname(
                 __file__)) / '..' / 'results' / f'benchmark-{platform.system()}-{msg_size}.png'
             data_path = Path(os.path.dirname(
                 __file__)) / '..' / 'results' / f'benchmark-{platform.system()}-{msg_size}.csv'
-            plt.savefig(png_path, dpi=150, bbox_inches="tight")
-            plt.close()
+            fig.savefig(png_path, dpi=150, bbox_inches="tight")
+            plt.close(fig)
 
             results.to_csv(data_path)
         else:
