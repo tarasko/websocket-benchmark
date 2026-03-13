@@ -18,9 +18,9 @@ async def run(args, url: str, msg: bytes, duration: float, warmup_cycles_cnt: in
                          b"1", # async client implements a real world epoll/recvmsg call sequence
                          b"0" if ssl_context is None else b"1",
                          args.host.encode(),
-                         args.tcp_port if ssl_context is None else args.ssl_port,
+                         str(args.tcp_port) if ssl_context is None else str(args.ssl_port),
                          str(len(msg)),
-                         args.duration],
+                         str(args.duration)],
                         shell=False, check=True, capture_output=True,
                         cwd=working_dir)
     _, rps = pr.stdout.split(b":", 2)
