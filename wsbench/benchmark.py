@@ -14,7 +14,7 @@ if os.name != 'nt':
 else:
     import winloop
 
-from logging import getLogger
+from logging import getLogger, basicConfig, ERROR
 import numpy as np
 import pandas as pd
 
@@ -163,6 +163,8 @@ def main():
     parser.add_argument("--profile", action="store_true", help="Enable profiling, print profile stats afterwards")
 
     args = parser.parse_args()
+
+    basicConfig(level=ERROR)
 
     loops = args.loops.split(",")
     pd_index = (args.clients.split(","))
