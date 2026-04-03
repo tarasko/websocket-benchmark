@@ -10,6 +10,6 @@ async def run(args, endpoint: str, msg: bytes, duration: float, warmup_cycles_cn
                                    endpoint,
                                    ssl_context=ssl_context,
                                    read_buffer_init_size=len(msg) + 1024,
-                                   use_aiofastnet=False)
+                                   use_aiofastnet=True)
     await transport.wait_disconnected()
     return client.rps

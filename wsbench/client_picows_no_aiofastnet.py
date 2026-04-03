@@ -2,7 +2,7 @@ from picows import ws_connect, __version__ as version
 from .picows_listener import EchoClientListener
 
 
-name = "picows[aiofastnet]"
+name = "picows-no-aiofastnet"
 
 
 async def run(args, endpoint: str, msg: bytes, duration: float, warmup_cycles_cnt: int, ssl_context):
@@ -10,6 +10,6 @@ async def run(args, endpoint: str, msg: bytes, duration: float, warmup_cycles_cn
                                    endpoint,
                                    ssl_context=ssl_context,
                                    read_buffer_init_size=len(msg) + 1024,
-                                   use_aiofastnet=True)
+                                   use_aiofastnet=False)
     await transport.wait_disconnected()
     return client.rps
