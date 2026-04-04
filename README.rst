@@ -73,7 +73,7 @@ Users of `websockets`_ either need some specific features that aiohttp doesn't h
 
 Aiohttp
 =======
-The most famous asynchronous HTTP Client/Server with websockets support. They do quite well across all message sizes while providing async read/write interface. The library implements frame parsing in Cython, but loose some performance due to high level features like async interface, message assembling and corresponding copying of frame data. I'd say it is a default choice if you just need a simple async websocket client
+An aynchronous HTTP Client/Server with websockets support. They do quite well across all message sizes while providing async read/write interface. The library implements frame parsing in Cython, but loose some performance due to high level features like async interface, message assembling and corresponding copying of frame data.
 
 Picows
 ======
