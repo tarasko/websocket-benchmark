@@ -68,8 +68,7 @@ Third, **NEVER EVER USE py4ws WITHOUT** `wsaccel`_. ws4py has no C speedups for 
 
 Websockets
 ==========
-A very popular websocket client library with the modern async interface. But for some reason significantly slower than its main competitor aiohttp. `aiohttp`_ offers similar features and a similar async interface, but it is just faster. Quickly going through the code I noticed that the library builds and parses frames in pure python, which may explain some performance degradation.
-Users of `websockets`_ either need some specific features that aiohttp doesn't have. Or they don't care about performance, which is absolutely fine, it is Python after all. Or maybe they are not aware of performance penalties.
+A popular websocket client library with the async interface. But for some reason significantly slower than its main competitor aiohttp. `aiohttp`_ offers similar features and a similar async interface, but it is just faster. Quickly going through the code I noticed that the library builds and parses frames in pure python, which may explain some performance degradation.
 
 Aiohttp
 =======
