@@ -29,6 +29,7 @@ public:
         , mWebsocket(ws)
         , mDuration(duration)
         , mMessage(msgSize, 'a')
+        , mIsWriteAsync(false)
     {
         // Look up domain name
         tcp::resolver resolver{mIoContext};
@@ -69,11 +70,12 @@ public:
         mWebsocket.compress(false);
     }
 
-    void write_read_loop(bool async)
+    void write_read_loop(bool isReadAsync, bool isWriteAsync)
     {
         mStartTime = Clock::now();
+        mIsWriteAsync = isWriteAsync;
 
-        if (async)
+        if (isReadAsync)
             async_write_read_loop();
         else
             sync_write_read_loop();
@@ -87,7 +89,7 @@ private:
     {
         while (Clock::now() - mStartTime < mDuration)
         {
-            mWebsocket.write(net::buffer(mMessage));
+            write_impl();
             mWebsocket.read(mReadBuffer);
             mReadBuffer.clear();
             mRequestCounter++;
@@ -96,9 +98,17 @@ private:
 
     void async_write_read_loop()
     {
-        mWebsocket.write(net::buffer(mMessage));
+        write_impl();
         mWebsocket.async_read(mReadBuffer, beast::bind_front_handler(&EchoClient::on_read, this));
         mIoContext.run();
+    }
+
+    void write_impl()
+    {
+        if (mIsWriteAsync)
+            mWebsocket.async_write(net::buffer(mMessage), beast::bind_front_handler(&EchoClient::on_write, this));
+        else
+            mWebsocket.write(net::buffer(mMessage));
     }
 
     void on_read(beast::error_code ec, std::size_t bytes_transferred)
@@ -113,9 +123,13 @@ private:
 
         if (Clock::now() - mStartTime < mDuration)
         {
-            mWebsocket.write(net::buffer(mMessage));
+            write_impl();
             mWebsocket.async_read(mReadBuffer, beast::bind_front_handler(&EchoClient::on_read, this));
         }
+    }
+
+    void on_write(beast::error_code ec, std::size_t bytes_transferred)
+    {
     }
 
     void on_fail(beast::error_code ec, char const* what)
@@ -130,22 +144,23 @@ private:
     Clock::duration mDuration;
     beast::flat_buffer mReadBuffer;
     std::string mMessage;
+    bool mIsWriteAsync;
 
 public:
     int mRequestCounter = 0;
 };
 
-void run_plain_client(net::io_context& ioc, std::string host, std::string port, size_t msgSize, int durationSec, bool isAsync)
+void run_plain_client(net::io_context& ioc, std::string host, std::string port, size_t msgSize, int durationSec, bool isReadAsync, bool isWriteAsync)
 {
     websocket::stream<tcp::socket> ws{ioc};
 
     EchoClient client{ioc, ws, host, port, msgSize, std::chrono::seconds{durationSec}};
-    client.write_read_loop(isAsync);
+    client.write_read_loop(isReadAsync, isWriteAsync);
 
     std::cout << "plain client:" << client.mRequestCounter/durationSec << std::endl;
 }
 
-void run_secure_client(net::io_context& ioc, std::string host, std::string port, size_t msgSize, int durationSec, bool isAsync)
+void run_secure_client(net::io_context& ioc, std::string host, std::string port, size_t msgSize, int durationSec, bool isReadAsync, bool isWriteAsync)
 {
     ssl::context ctx{ssl::context::tlsv12_client};
     ctx.set_verify_mode(boost::asio::ssl::verify_none);
@@ -156,7 +171,7 @@ void run_secure_client(net::io_context& ioc, std::string host, std::string port,
     // load_root_certificates(ctx);
 
     EchoClient client{ioc, ws, host, port, msgSize, std::chrono::seconds{durationSec}};
-    client.write_read_loop(isAsync);
+    client.write_read_loop(isReadAsync, isWriteAsync);
 
     std::cout << "ssl client:" << client.mRequestCounter/durationSec << std::endl;
 }
@@ -167,27 +182,28 @@ int main(int argc, char** argv)
     try
     {
         // Check command line arguments.
-        if(argc != 7)
+        if(argc != 8)
         {
             std::cerr <<
-                "Usage: ws_echo_client <is_async{1|0} is_secure{1|0}> <host> <port> <msg_size> <duration_sec>\n" <<
+                "Usage: ws_echo_client <is_read_async{1|0} is_write_async{1|0} is_secure{1|0}> <host> <port> <msg_size> <duration_sec>\n" <<
                 "Example:\n" <<
-                "    ws_echo_client 1 0 echo.websocket.org 80 256 10\n";
+                "    ws_echo_client 1 1 0 echo.websocket.org 80 256 10\n";
             return EXIT_FAILURE;
         }
-        bool isAsync = !!atoi(argv[1]);
-        bool isSecure = !!atoi(argv[2]);
-        std::string host = argv[3];
-        auto const  port = argv[4];
-        auto const  msgSize = (size_t)atoi(argv[5]);
-        auto const durationSec = atoi(argv[6]);
+        bool isReadAsync = !!atoi(argv[1]);
+        bool isWriteAsync = !!atoi(argv[2]);
+        bool isSecure = !!atoi(argv[3]);
+        std::string host = argv[4];
+        auto const  port = argv[5];
+        auto const  msgSize = (size_t)atoi(argv[6]);
+        auto const durationSec = atoi(argv[7]);
 
         // The io_context is required for all I/O
         net::io_context ioc;
         if (isSecure)
-            run_secure_client(ioc, host, port, msgSize, durationSec, isAsync);
+            run_secure_client(ioc, host, port, msgSize, durationSec, isReadAsync, isWriteAsync);
         else
-            run_plain_client(ioc, host, port, msgSize, durationSec, isAsync);
+            run_plain_client(ioc, host, port, msgSize, durationSec, isReadAsync, isWriteAsync);
     }
     catch(std::exception const& e)
     {

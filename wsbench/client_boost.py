@@ -16,6 +16,7 @@ async def run(args, url: str, msg: bytes, duration: float, warmup_cycles_cnt: in
 
     pr = subprocess.run([client_path,
                          b"1", # async client implements a real world epoll/recvmsg call sequence
+                         b"0", # async client uses sync write, doesn't block unless we try to send > SNDBUF size, replicate immediate write attempt by aiofastnet
                          b"0" if ssl_context is None else b"1",
                          args.host.encode(),
                          str(args.tcp_port) if ssl_context is None else str(args.ssl_port),
