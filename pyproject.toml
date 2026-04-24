@@ -7,7 +7,7 @@ readme = "README.rst"
 license-files = ["LICENSE"]
 dynamic = ["version"]
 keywords = ["websocket", "networking", "benchmark"]
-dependencies = ["aiohttp", "websockets", "picows", "numpy", "matplotlib", "uvloop; sys_platform != 'win32'"]
+dependencies = ["aiohttp", "websockets", "picows", "numpy", "matplotlib", "uvloop; sys_platform != 'win32'", "rsloop"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Framework :: AsyncIO",
@@ -33,4 +33,3 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
 packages = ["websocket_benchmark"]
-

@@ -15,6 +15,8 @@ Method
 
 .. _wsaccel: https://github.com/methane/wsaccel
 
+.. _rsloop: https://github.com/RustedBytes/rsloop
+
 This benchmark measures the latency of various Python asyncio-based WebSocket client libraries.
 
 Each client connects to a WebSocket server over the loopback interface. The client sends a message of a specified size and waits for the response. Once the response is received, the client immediately sends the next message.
@@ -108,6 +110,10 @@ Uvloop
 Unfortunately, uvloop is not very well maintained anymore. It take years to get PRs merged, but it is still a little faster than vanilla asyncio from Python-3.13.
 Not available on Windows.
 
+Rsloop
+======
+WIP
+
 Winloop
 =======
 Winloop is a fork of uvloop with the goal to bring uvloop performance to Windows users.
@@ -187,7 +193,6 @@ Build python benchmark
 .. code-block::
 
   $ python -m wsbench.benchmark --msg-size 256 --duration 10
-
 
 Contribute
 ==========

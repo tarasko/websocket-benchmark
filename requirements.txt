@@ -9,4 +9,5 @@ tornado
 ws4py
 wsaccel
 uvloop; sys_platform != 'win32'
+rsloop
 winloop; sys_platform == 'win32'

@@ -3,22 +3,43 @@ import asyncio
 import importlib
 import os
 import platform
-import pstats
 import ssl
 import cProfile
 from pathlib import Path
-from pstats import SortKey
 
 if os.name != 'nt':
     import uvloop
 else:
     import winloop
 
+import rsloop
+
 from logging import getLogger, basicConfig, ERROR
 import numpy as np
 import pandas as pd
 
 _logger = getLogger(__name__)
+
+
+def default_loops():
+    if os.name != 'nt':
+        loops = ["asyncio", "uvloop"]
+    else:
+        loops = ["asyncio_pro", "asyncio_sel", "winloop"]
+
+    return ",".join(loops)
+
+
+def loop_versions():
+    versions = [f"Python-{platform.python_version()}"]
+    if os.name != 'nt':
+        versions.append(f"uvloop-{uvloop.__version__}")
+    else:
+        versions.append(f"winloop-{winloop.__version__}")
+
+    versions.append(f"rsloop-{rsloop.__version__}")
+
+    return versions
 
 
 def create_client_ssl_context():
@@ -68,12 +89,9 @@ def print_result_and_plot(msg_size, results: pd.DataFrame, save_plot):
         ax.set_xticks(x + width * (len(clients) - 1) / 2, tests)
         ax.set_ylabel("request/second")
         headers = [
-            'Echo round-trip performance',            
-        ]        
-        if os.name != 'nt':
-            headers.append(f'Python-{platform.python_version()}, uvloop-{uvloop.__version__}, msg_size={msg_size}')
-        else:
-            headers.append(f'Python-{platform.python_version()}, winloop-{winloop.__version__}, msg_size={msg_size}')
+            'Echo round-trip performance',
+        ]
+        headers.append(f"{', '.join(loop_versions())}, msg_size={msg_size}")
         headers.append(f"{platform.system()} - {platform.processor()}")
         ax.set_title("\n".join(headers))
         handles, labels = ax.get_legend_handles_labels()
@@ -147,10 +165,7 @@ def main():
     parser.add_argument("--ssl-port", type=int, default="9002", help="Server port with ssl websockets")
     parser.add_argument("--msg-size", type=int, default="256", help="Message size")
     parser.add_argument("--duration", type=int, default="5", help="duration of test in seconds")
-    if os.name != 'nt':
-        parser.add_argument("--loops", default="asyncio,uvloop", help="Comma separated list of event loops")
-    else:
-        parser.add_argument("--loops", default="asyncio_pro,asyncio_sel,winloop", help="Comma separated list of event loops")
+    parser.add_argument("--loops", default=default_loops(), help="Comma separated list of event loops")
     parser.add_argument("--no-plot", action="store_true", help="Disable plots")
     parser.add_argument("--save-plot", action="store_true", help="Save plot to results folder instead of showing them")
 
@@ -161,10 +176,11 @@ def main():
     parser.add_argument("--skip-ssl", action="store_true", help="Disable ssl client test")
 
     parser.add_argument("--profile", action="store_true", help="Enable profiling, print profile stats afterwards")
+    parser.add_argument("--level", type=str, default="ERROR", help="Log level")
 
     args = parser.parse_args()
 
-    basicConfig(level=ERROR)
+    basicConfig(level=args.level)
 
     loops = args.loops.split(",")
     pd_index = (args.clients.split(","))
@@ -202,6 +218,8 @@ def main():
                         asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
                     elif loop == 'winloop':
                         asyncio.set_event_loop_policy(winloop.EventLoopPolicy())
+                    elif loop == 'rsloop':
+                        pass
                     elif loop == 'asyncio_sel':
                         asyncio.set_event_loop_policy(asyncio._WindowsSelectorEventLoopPolicy())
                     else:
@@ -209,7 +227,10 @@ def main():
 
                     tcp_ssl_name = 'tcp' if ctx is None else 'ssl'
                     print(f"Run {m.name} {tcp_ssl_name} {args.msg_size} bytes {loop} test")
-                    rps = asyncio.run(m.run(args, url, msg, args.duration, 100, ctx))
+                    if loop == 'rsloop':
+                        rps = rsloop.run(m.run(args, url, msg, args.duration, 100, ctx), debug=True)
+                    else:
+                        rps = asyncio.run(m.run(args, url, msg, args.duration, 100, ctx))
 
                     if module_idx == 0:
                         pd_columns.append(f"{tcp_ssl_name}-{loop}")
