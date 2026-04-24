@@ -1,3 +1,4 @@
+import asyncio
 import logging
 
 import rsloop
@@ -7,6 +8,7 @@ from websockets import connect
 HOST = "127.0.0.1"
 PORT = 9001
 URL = f"ws://{HOST}:{PORT}/"
+USE_RSLOOP = True
 
 
 async def main():
@@ -20,4 +22,7 @@ async def main():
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
-    rsloop.run(main(), debug=True)
+    if USE_RSLOOP:
+        rsloop.run(main(), debug=True)
+    else:
+        asyncio.run(main())
