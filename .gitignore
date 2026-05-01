@@ -10,3 +10,4 @@ build
 *.so
 *.pyd
 __pycache__
+.codex

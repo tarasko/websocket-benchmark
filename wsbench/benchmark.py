@@ -37,6 +37,7 @@ def print_result_and_plot(msg_size, results: pd.DataFrame, save_plot):
         "websockets": "orange",
         "aiohttp": "green",
         "picows_no_aiofastnet": "red",
+        "picows_websockets": "red",
         "picows": "darkred",
         "picows_cyt": "darkred",
         "boost": "black"
