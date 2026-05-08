@@ -227,7 +227,7 @@ def main():
 
     if args.profile:
         pr.disable()
-        pr.print_stats()
+        pr.print_stats(sort=2)
         return
 
     df = pd.DataFrame(results, index=pd_index, columns=pd_columns)
