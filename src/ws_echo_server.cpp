@@ -81,6 +81,13 @@ public:
                             " websocket-server-async");
                 }));
 
+            websocket::permessage_deflate def_opt = {
+                .server_enable = true,
+                .client_enable = false
+            };
+
+            ws_.set_option(def_opt);
+
             // Accept the websocket handshake
             ws_.async_accept(beast::bind_front_handler(
                                  &session<UnderlyingStream>::on_websocket_handshake_done,

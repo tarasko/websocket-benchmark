@@ -8,6 +8,9 @@ import ssl
 import cProfile
 from pathlib import Path
 from pstats import SortKey
+import re
+
+import cpuinfo
 
 if os.name != 'nt':
     import uvloop
@@ -19,6 +22,27 @@ import numpy as np
 import pandas as pd
 
 _logger = getLogger(__name__)
+
+
+
+def clean_cpu_model() -> str:
+    raw_cpu = cpuinfo.get_cpu_info()["brand_raw"]
+
+    patterns = [
+        r"\s+with\s+Radeon(?:\(TM\))?\s+Graphics.*$",
+        r"\s+with\s+AMD\s+Radeon(?:\(TM\))?\s+Graphics.*$",
+        r"\s+with\s+Intel(?:\(R\))?\s+.*Graphics.*$",
+        r"\s+with\s+Iris(?:\(R\))?\s+.*Graphics.*$",
+        r"\s+with\s+UHD\s+Graphics.*$",
+        r"\s+with\s+HD\s+Graphics.*$",
+    ]
+
+    cleaned = raw_cpu.strip()
+
+    for pattern in patterns:
+        cleaned = re.sub(pattern, "", cleaned, flags=re.IGNORECASE)
+
+    return cleaned.strip()
 
 
 def create_client_ssl_context():
@@ -37,8 +61,8 @@ def print_result_and_plot(msg_size, results: pd.DataFrame, save_plot):
         "websockets": "orange",
         "aiohttp": "green",
         "picows_no_aiofastnet": "red",
-        "picows": "darkred",
-        "picows_cyt": "darkred",
+        "picows_websockets": "red",
+        "picows_core": "darkred",
         "boost": "black"
     }
 
@@ -74,7 +98,7 @@ def print_result_and_plot(msg_size, results: pd.DataFrame, save_plot):
             headers.append(f'Python-{platform.python_version()}, uvloop-{uvloop.__version__}, msg_size={msg_size}')
         else:
             headers.append(f'Python-{platform.python_version()}, winloop-{winloop.__version__}, msg_size={msg_size}')
-        headers.append(f"{platform.system()} - {platform.processor()}")
+        headers.append(f"{platform.system()} - {clean_cpu_model()}")
         ax.set_title("\n".join(headers))
         handles, labels = ax.get_legend_handles_labels()
         fig.canvas.draw()
@@ -155,7 +179,7 @@ def main():
     parser.add_argument("--save-plot", action="store_true", help="Save plot to results folder instead of showing them")
 
     parser.add_argument("--clients",
-                        default="tornado,ws4py,websockets,aiohttp,picows,boost",
+                        default="tornado,ws4py,websockets,aiohttp,picows_websockets,picows_core,boost",
                         help="Comma separated list of clients")
     parser.add_argument("--skip-tcp", action="store_true", help="Disable plain tcp client test")
     parser.add_argument("--skip-ssl", action="store_true", help="Disable ssl client test")
@@ -226,7 +250,7 @@ def main():
 
     if args.profile:
         pr.disable()
-        pr.print_stats()
+        pr.print_stats(sort=2)
         return
 
     df = pd.DataFrame(results, index=pd_index, columns=pd_columns)

@@ -2,7 +2,7 @@ from picows import ws_connect, __version__ as version
 from .picows_listener import EchoClientListener
 
 
-name = "picows"
+name = "picows_core"
 
 
 async def run(args, endpoint: str, msg: bytes, duration: float, warmup_cycles_cnt: int, ssl_context):
