@@ -1,9 +1,9 @@
 from picows.websockets import connect
-from picows import __version__ as version
 from time import time
 
 
 name = "picows_websockets"
+from picows import __version__ as version
 
 
 async def run(args, endpoint: str, msg: bytes, duration: float, warmup_cycles_cnt: int, ssl_context):

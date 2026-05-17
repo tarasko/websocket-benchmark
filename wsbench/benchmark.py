@@ -62,8 +62,7 @@ def print_result_and_plot(msg_size, results: pd.DataFrame, save_plot):
         "aiohttp": "green",
         "picows_no_aiofastnet": "red",
         "picows_websockets": "red",
-        "picows": "darkred",
-        "picows_cyt": "darkred",
+        "picows_core": "darkred",
         "boost": "black"
     }
 
@@ -180,7 +179,7 @@ def main():
     parser.add_argument("--save-plot", action="store_true", help="Save plot to results folder instead of showing them")
 
     parser.add_argument("--clients",
-                        default="tornado,ws4py,websockets,aiohttp,picows,boost",
+                        default="tornado,ws4py,websockets,aiohttp,picows_websockets,picows_core,boost",
                         help="Comma separated list of clients")
     parser.add_argument("--skip-tcp", action="store_true", help="Disable plain tcp client test")
     parser.add_argument("--skip-ssl", action="store_true", help="Disable ssl client test")

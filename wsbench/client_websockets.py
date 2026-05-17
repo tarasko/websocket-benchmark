@@ -1,8 +1,9 @@
-from websockets import connect, __version__ as version
+from websockets import connect
 from time import time
 
 
 name = "websockets"
+from websockets import __version__ as version
 
 
 async def run(args, endpoint: str, msg: bytes, duration: float, warmup_cycles_cnt: int, ssl_context):
