@@ -1,8 +1,8 @@
 ,version,ssl-asyncio,ssl-uvloop,tcp-asyncio,tcp-uvloop
-tornado,6.5.5,127,128,192,195
-ws4py,0.6.0,57,57,136,136
-websockets,16.0,127,133,358,348
-aiohttp,3.13.5,119,132,343,362
-picows_websockets,2.0.0,255,259,599,606
-picows_core,2.0.0,283,286,711,719
-boost,1.90.0,290,290,831,831
+tornado,6.5.8,138,139,204,203
+ws4py,0.6.0,60,60,144,144
+websockets,17.1,128,150,326,320
+aiohttp,3.14.3,161,160,455,462
+picows_websockets,2.3.0,249,250,606,609
+picows_core,2.3.0,271,272,725,731
+boost,1.90.0,275,275,830,830
